@@ -1,7 +1,8 @@
-apiVersion: batch/v1
+apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: cloudflare-ddns
+  namespace: cert-manager
 spec:
   schedule: "*/5 * * * *"
   jobTemplate:
@@ -13,17 +14,25 @@ spec:
               image: mirioeggmann/cloudflare-ddns:latest
               env:
               - name: ZONE_ID
-                value: ""
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-dns-secret
+                    key: dns-root-zoneId
               - name: RECORD_ID
-                value: ""
-              - name: AUTH_KEY
-                value: ""
-              - name: AUTH_EMAIL
-                value: ""
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-dns-secret
+                    key: dns-root-recordId
               - name: API_TOKEN
-                value: ""
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-dns-secret
+                    key: api-token
               - name: NAME
-                value: ""
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudflare-dns-secret
+                    key: dns-root-name
               - name: PROXIED
-                value: ""
+                value: "false"
           restartPolicy: OnFailure
